@@ -61,62 +61,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           ),
         ],
       ),
-
-    class LeaderboardPopup extends StatelessWidget {
-      const LeaderboardPopup({super.key});
-
-      @override
-      Widget build(BuildContext context) {
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('🏆 Leaderboard'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-          body: FutureBuilder<List<Map<String, Object?>>>(
-            future: SlotMachineDatabase.instance.getLeaderboard(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-
-              final players = snapshot.data!;
-
-              if (players.isEmpty) {
-                return const Center(child: Text('No players yet!'));
-              }
-
-              return ListView.builder(
-                itemCount: players.length,
-                itemBuilder: (context, index) {
-                  final player = players[index];
-
-                  return ListTile(
-                    leading: CircleAvatar(child: Text('${index + 1}')),
-                    title: Text(player['name'].toString()),
-                    subtitle: Text(
-                      player['is_playing'] == 1
-                        ? 'Currently playing'
-                        : 'Offline',
-                    ),
-                    trailing: Text('${player['points']} pts'),
-                  );
-                },
-              );
-            },
-          ),
-        );
-      }
-    }
-
-
-
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -139,6 +83,54 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class LeaderboardPopup extends StatelessWidget {
+  const LeaderboardPopup({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('🏆 Leaderboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+      body: FutureBuilder<List<Map<String, Object?>>>(
+        future: LeaderboardDatabase.instance.getLeaderboard(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          final players = snapshot.data!;
+
+          if (players.isEmpty) {
+            return const Center(child: Text('No scores recorded yet!'));
+          }
+
+          return ListView.builder(
+            itemCount: players.length,
+            itemBuilder: (context, index) {
+              final player = players[index];
+
+              return ListTile(
+                leading: CircleAvatar(child: Text('${index + 1}')),
+                title: Text(player['player_name']?.toString() ?? 'Player'),
+                trailing: Text('${player['score']} pts'),
+              );
+            },
+          );
+        },
       ),
     );
   }
